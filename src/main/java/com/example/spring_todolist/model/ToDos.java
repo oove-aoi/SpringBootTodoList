@@ -1,7 +1,9 @@
 package com.example.spring_todolist.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +19,8 @@ import java.util.Date;
 @Data //相當於是懶人包 包含 @Getter/@Setter @ToString @EqualsAndHashCode @RequiredArgsConstructor
 @NoArgsConstructor
 @AllArgsConstructor
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "todo_id")
+//JsonIdentityInfo 使用在雙向關聯的情況，它可以確保每個對象只會被序列化一次
 public class ToDos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

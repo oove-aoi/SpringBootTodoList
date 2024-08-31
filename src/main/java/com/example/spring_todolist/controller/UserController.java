@@ -21,19 +21,24 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    /*
+    Optional<> 比較常用在服務層或資料存取層，好處理沒找到資料的狀況
+    ResponseEntity<> 用在Controller中封裝回應
+
+     */
     @GetMapping("/{id}")
-    @Operation(summary = "Get user by ID", description = "Retrieves user based on ID")
+    @Operation(summary = "Get user and All todo by User-ID", description = "Retrieves user based on ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success found the user"),
             @ApiResponse(responseCode = "404", description = "Can't found user"),
             @ApiResponse(responseCode = "500", description = "Server error")
     })
-    public ResponseEntity<Optional<User>> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
         Optional<User> user = userService.getUserById(id);
 
         //JPARepository返回值為Optional<User>，有沒有找到值要用isPresent()來判斷
         if(user.isPresent()) {
-            return ResponseEntity.status(HttpStatus.OK).body(user);
+            return ResponseEntity.status(HttpStatus.OK).body(user.get());
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }

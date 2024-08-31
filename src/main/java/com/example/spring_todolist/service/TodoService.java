@@ -13,18 +13,22 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 @Service
 public class TodoService {
     @Autowired
     private TodosRepository todosRepository;
-
     @Autowired
     private UserRepository userRepository;
 
-    public Optional<ToDos> findById(Long id) {
+
+
+    public TodoDto getDtoById(Long id) {
         Optional<ToDos> todo = todosRepository.findById(id);
-        return todo;
+        ToDos todoEntity = todo.orElseThrow(() -> new RuntimeException("Todo not found with id: " + id));
+
+        return convertToDto(todoEntity);
     }
 
     public List<ToDos> getTodos() {
@@ -45,9 +49,10 @@ public class TodoService {
     }
 
     public Boolean updateTodo(Long id, TodoDto todoDto) {
-        Optional<ToDos> isExistTodo = findById(id);
+        //單純用boolean好像不能分析到底哪裡有問題，可能要用其他方式新增訊息
+        Optional<ToDos> isExistTodo = getOptionalToDosById(id);
 
-        if(! isExistTodo.isPresent()) {
+        if(isExistTodo.isEmpty()) {
             return false;
         }
 
@@ -68,11 +73,40 @@ public class TodoService {
     }
 
     public Boolean deleteTodo(Long id) {
-        Optional<ToDos> findTodo = findById(id);
-        if(!findTodo.isPresent()) {
+        Optional<ToDos> findTodo = getOptionalToDosById(id);
+        if(findTodo.isEmpty()) {
             return false;
         }
         todosRepository.deleteById(id);
         return true;
+    }
+
+    //查詢User底下的所有Todos
+    public List<ToDos> getTodosByUserId(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return todosRepository.findByUser(user);
+    }
+
+    //使用stream()流操作將todos全部轉成TodoDto(使用下面的convertToDto)，然後再蒐集起來弄成一個List
+    public List<TodoDto> todosListToDtoList(List<ToDos> todos) {
+        return todos.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
+
+    //將ToDos轉換成Dto
+    private TodoDto convertToDto(ToDos todo) {
+        TodoDto dto = new TodoDto();
+
+        dto.setUserId(todo.getUser().getUser_id()); // 設置 userId
+        dto.setTodoId(todo.getTodo_id());
+        dto.setTitle(todo.getTitle());
+        dto.setContext(todo.getContext());
+        dto.setStatus(todo.getStatus());
+
+        return dto;
+    }
+
+    private Optional<ToDos> getOptionalToDosById(Long id){
+        return todosRepository.findById(id);
     }
 }

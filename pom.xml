@@ -51,6 +51,11 @@
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 			<version>3.3.2</version>
 		</dependency>
+		<!-- 開發者模組，可以快速重啟與即時重新載入  -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
